@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  llm-news:
+    build: .
+    container_name: llm-news
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - GIN_MODE=release

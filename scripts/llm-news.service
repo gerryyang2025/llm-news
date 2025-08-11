@@ -1,0 +1,18 @@
+[Unit]
+Description=LLM News Service
+After=network.target
+
+[Service]
+Type=simple
+User=<USER>
+WorkingDirectory=/path/to/llm-news
+ExecStart=/path/to/llm-news/bin/llm-news
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/path/to/llm-news/logs/llm-news.log
+StandardError=append:/path/to/llm-news/logs/llm-news-error.log
+# 允许服务绑定到所有网络接口
+Environment="GIN_MODE=release"
+
+[Install]
+WantedBy=multi-user.target

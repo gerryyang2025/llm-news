@@ -1,0 +1,45 @@
+# 二进制文件和编译输出
+/bin/
+/tmp/
+
+# 日志文件
+/logs/
+*.log
+
+# PID文件
+*.pid
+llm-news.pid
+
+# 依赖目录
+/vendor/
+
+# macOS系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows系统文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux系统文件
+*~
+.directory
+
+# IDE和编辑器文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Go特有的文件
+# 如果你想检入vendor目录，可以注释下面这行
+# /vendor/
+/go.work
+
+# 测试缓存
+/testdata/

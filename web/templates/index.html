@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .title }}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description" content="LLM News - Stay updated with the latest AI/ML developments, repositories, and research papers">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>LLM News</h1>
+            <p>Stay updated with the latest AI/ML tools, research papers, and trends</p>
+            <div class="last-update">Last updated: {{ .lastUpdated }}</div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <ul>
+                <li><a href="#repositories">Repositories</a></li>
+                <li><a href="#papers">Research Articles</a></li>
+                <li><a href="https://github.com/gerryyang2025/llm-news" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="repositories" class="section">
+            <div class="section-header">
+                <h2>Trending AI/ML Projects</h2>
+                <div class="section-actions">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="llm">LLMs</button>
+                    <button class="filter-btn" data-filter="agent">Agents</button>
+                    <button class="filter-btn" data-filter="multimodal">Multimodal</button>
+                    <button class="filter-btn" data-filter="diffusion">Diffusion</button>
+                    <div class="dropdown">
+                        <button class="dropbtn">Models ▼</button>
+                        <div class="dropdown-content">
+                            <button class="filter-btn" data-filter="cursor">Cursor</button>
+                            <button class="filter-btn" data-filter="deepseek">DeepSeek</button>
+                            <button class="filter-btn" data-filter="hunyuan">Hunyuan</button>
+                            <button class="filter-btn" data-filter="claude">Claude</button>
+                            <button class="filter-btn" data-filter="gemini">Gemini</button>
+                            <button class="filter-btn" data-filter="llama">Llama</button>
+                            <button class="filter-btn" data-filter="qwen">Qwen</button>
+                        </div>
+                    </div>
+                    <div class="filter-result-count">{{ len .repos }} repositories</div>
+                </div>
+            </div>
+
+            <div class="repo-filter-title" style="display: none;"></div>
+
+            <div class="repo-grid">
+                {{ if eq (len .repos) 0 }}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No repositories found. Data collection might be in progress.</p>
+                </div>
+                {{ else }}
+                {{ range .repos }}
+                <div class="repo-card"
+                     data-stars="{{ .Stars }}"
+                     data-gained="{{ .GainedStars }}"
+                     data-relevance="{{ .RelevanceScore }}">
+                    <div class="repo-header">
+                        <h3><a href="{{ .URL }}" target="_blank">{{ .Name }}</a></h3>
+                        <div class="repo-meta">
+                            {{ if .Language }}
+                            <span class="language"><i class="fas fa-code"></i> {{ .Language }}</span>
+                            {{ end }}
+                            <span class="stars"><i class="fas fa-star"></i> {{ .Stars }}</span>
+                            <span class="gained tooltip">
+                                <i class="fas fa-arrow-trend-up"></i> +{{ .GainedStars }}
+                                <span class="tooltiptext">{{ .TrendMetrics.Stars24h }} stars in last 24h</span>
+                            </span>
+                        </div>
+                    </div>
+                    <p class="description">{{ .Description }}</p>
+
+                    <div class="repo-details">
+                        <div class="tech-stack">
+                            {{ range .TechStack }}
+                            <span class="tech-tag">{{ . }}</span>
+                            {{ end }}
+                        </div>
+
+                        {{ if .HasDocs }}
+                        <div class="docs-badge tooltip">
+                            <a href="{{ if .DocsURL }}{{ .DocsURL }}{{ else }}{{ .URL }}{{ end }}" target="_blank">
+                                <i class="fas fa-book"></i> Documentation
+                            </a>
+                            <span class="tooltiptext">
+                                {{ if .HasWiki }}Wiki documentation available{{ end }}
+                                {{ if and .HasWiki .HasReadme }}and{{ end }}
+                                {{ if .HasReadme }}README documentation available{{ end }}
+                                <br>Click to view documentation
+                            </span>
+                        </div>
+                        {{ end }}
+
+                        {{ if .LastCommit.IsZero }}
+                        <div class="updated">Updated recently</div>
+                        {{ else }}
+                        <div class="updated">Last commit: {{ .LastCommit.Format "Jan 02, 2006" }}</div>
+                        {{ end }}
+
+                        <div class="relevance-score" title="Relevance score based on stars, growth, and recency">
+                            <div class="relevance-label">AI relevance:</div>
+                            <div class="score-bar">
+                                <div class="score-fill" data-percent="{{ percentMultiply .RelevanceScore 100 }}"></div>
+                            </div>
+                            <div class="score-value">{{ printf "%.1f" .RelevanceScore }}</div>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+                {{ end }}
+            </div>
+        </section>
+
+        <section id="papers" class="section">
+            <div class="section-header">
+                <h2>Latest AI Research Articles</h2>
+                <div class="section-actions">
+                    <button class="sort-btn active" data-sort="novelty">Sort by Novelty</button>
+                    <button class="sort-btn" data-sort="date">Sort by Date</button>
+                    <button class="sort-btn" data-sort="citations">Sort by Citations</button>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="llm">LLMs</button>
+                    <button class="filter-btn" data-filter="agent">Agents</button>
+                    <button class="filter-btn" data-filter="multimodal">Multimodal</button>
+                    <button class="filter-btn" data-filter="diffusion">Diffusion</button>
+                </div>
+            </div>
+
+            <div class="papers-list">
+                {{ if eq (len .papers) 0 }}
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <p>No papers found. Data collection might be in progress.</p>
+                </div>
+                {{ else }}
+                {{ range .papers }}
+                <div class="paper-card"
+                     data-novelty="{{ .NoveltyScore }}"
+                     data-date="{{ .PublishedDate.Unix }}"
+                     data-citations="{{ .CitationCount }}">
+                    <div class="paper-header">
+                        <h3><a href="{{ .URL }}" target="_blank">{{ .Title }}</a></h3>
+                        <div class="paper-rating">
+                            <div class="stars">
+                                {{ $fullStars := floorScore .NoveltyScore }}
+                                {{ $hasHalfStar := gt (subScore $fullStars .NoveltyScore) 0.0 }}
+
+                                {{ range $i := loopCount 5 }}
+                                    {{ if lt $i $fullStars }}
+                                        <i class="fas fa-star"></i>
+                                    {{ else if and $hasHalfStar (eq $i $fullStars) }}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {{ else }}
+                                        <i class="far fa-star"></i>
+                                    {{ end }}
+                                {{ end }}
+                                <span class="score">{{ printf "%.1f" .NoveltyScore }}/5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="authors">
+                        {{ range $index, $author := .Authors }}
+                            {{ if $index }}, {{ end }}{{ $author }}
+                        {{ end }}
+                    </p>
+
+                    <div class="paper-meta">
+                        <span class="date"><i class="far fa-calendar-alt"></i> {{ .PublishedDate.Format "Jan 02, 2006" }}</span>
+                        <span class="source"><i class="fas fa-database"></i> {{ .Source }}</span>
+                        <span class="citations"><i class="fas fa-quote-right"></i> {{ .CitationCount }} citations</span>
+                        <span class="citation-velocity tooltip">
+                            <i class="fas fa-bolt"></i> {{ printf "%.2f" .CitationVelocity }} / day
+                            <span class="tooltiptext">Citations per day since publication</span>
+                        </span>
+                    </div>
+
+                    <div class="paper-content">
+                        <div class="summary-section">
+                            <h4>Summary</h4>
+                            <p class="summary">{{ .Summary }}</p>
+                        </div>
+
+                        {{ if .CoreContributions }}
+                        <div class="contributions-section">
+                            <h4>Core Contributions</h4>
+                            <ul class="contributions-list">
+                                {{ range .CoreContributions }}
+                                <li>{{ . }}</li>
+                                {{ end }}
+                            </ul>
+                        </div>
+                        {{ end }}
+
+                        {{ if .KeyTechniques }}
+                        <div class="techniques-section">
+                            <h4>Key Techniques</h4>
+                            <div class="techniques-list">
+                                {{ range .KeyTechniques }}
+                                <span class="technique-tag">{{ . }}</span>
+                                {{ end }}
+                            </div>
+                        </div>
+                        {{ end }}
+
+                        {{ if .CodeSnippet }}
+                        <div class="code-section">
+                            <h4>Code Example</h4>
+                            <pre class="code-snippet">{{ .CodeSnippet }}</pre>
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <div class="paper-footer">
+                        <div class="keywords">
+                            {{ range .Keywords }}
+                            <span class="keyword">{{ . }}</span>
+                            {{ end }}
+                        </div>
+
+                        <div class="reproducibility">
+                            <span class="reproducibility-label">Reproducibility:</span>
+                            <div class="score-bar">
+                                <div class="score-fill" data-percent="{{ percentMultiply (divScore .ReproducibilityScore 5) 100 }}"></div>
+                            </div>
+                            <span class="score-value">{{ printf "%.1f" .ReproducibilityScore }}/5</span>
+                        </div>
+                    </div>
+                </div>
+                {{ end }}
+                {{ end }}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About LLM News</h3>
+                    <p>LLM News is an automated tracker for AI/ML developments, focusing on Large Language Models, AGI, and related technologies.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links</h3>
+                    <ul>
+                        <li><a href="https://github.com/gerryyang2025/llm-news" target="_blank">GitHub Repository</a></li>
+                        <li><a href="/api/repos">API: Repositories</a></li>
+                        <li><a href="/api/research-articles">API: Research Articles</a></li>
+                        <li><a href="/api/stats">API: Stats</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ .now.Year }} LLM News - An open-source project for tracking AI/ML advancements</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // Filter functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set score-fill widths from data-percent attributes
+        document.querySelectorAll('.score-fill').forEach(function(el) {
+            const percent = el.getAttribute('data-percent');
+            if (percent) {
+                el.style.width = percent + '%';
+            }
+        });
+
+        // Repository filtering
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterBtns.forEach(b => b.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Get filter value
+                const filter = this.getAttribute('data-filter');
+
+                // Filter repositories
+                const repoCards = document.querySelectorAll('.repo-card');
+                repoCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'block';
+                    } else {
+                        const name = card.querySelector('h3 a').textContent.toLowerCase();
+                        const desc = card.querySelector('.description').textContent.toLowerCase();
+
+                        if (name.includes(filter) || desc.includes(filter)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+
+        // Paper sorting
+        const sortBtns = document.querySelectorAll('.sort-btn');
+        sortBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                sortBtns.forEach(b => b.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Get sort criterion
+                const sortBy = this.getAttribute('data-sort');
+
+                // Sort papers
+                const papersList = document.querySelector('.papers-list');
+                const papers = Array.from(papersList.querySelectorAll('.paper-card'));
+
+                papers.sort((a, b) => {
+                    if (sortBy === 'novelty') {
+                        return parseFloat(b.getAttribute('data-novelty')) - parseFloat(a.getAttribute('data-novelty'));
+                    } else if (sortBy === 'date') {
+                        return parseInt(b.getAttribute('data-date')) - parseInt(a.getAttribute('data-date'));
+                    } else if (sortBy === 'citations') {
+                        return parseInt(b.getAttribute('data-citations')) - parseInt(a.getAttribute('data-citations'));
+                    }
+                    return 0;
+                });
+
+                // Re-append sorted papers
+                papers.forEach(paper => {
+                    papersList.appendChild(paper);
+                });
+            });
+        });
+    });
+    </script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
